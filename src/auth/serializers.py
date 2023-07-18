@@ -1,3 +1,4 @@
+from pkg_resources import require
 from rest_framework import serializers
 from django.conf import settings
 
@@ -48,18 +49,52 @@ class GetUserByIdSerializer(serializers.Serializer):
     id = serializers.CharField(required=True, write_only=True)
 
 
-class GetUserByAccountSerilizer(serializers.ModelSerializer):
+class GetUserByEmailPayloadSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True, write_only=True)
+
+class DeleteUserPayloadSerializer(serializers.Serializer):
+    id = serializers.EmailField(required=True, write_only=True, source="userId")
+
+
+class GetUserByAccountPayloadSerializer(serializers.Serializer):
+    provider = serializers.CharField(required=True, write_only=True)
+    provider_account_id = serializers.CharField(
+        required=True, write_only=True, source="providerAccountId"
+    )
+    
+    def retrieve(self, validated_data: dict) -> Account:
+        provider = validated_data.get("provider")
+        provider_account_id = validated_data.get("providerAccountId")
+        return Account.objects.get(
+            provider=provider, provider_account_id=provider_account_id
+        )
+
+class GetUserByAccountSerilizer(serializers.Serializer):
+    provider = serializers.CharField(required=True, write_only=True)
+    provider_account_id = serializers.CharField(
+        required=True, write_only=True
+    )
+    
     class Meta:
-        model = Account
-        fields = ["provider", "provider_account_id"]
-        extra_kwargs = {
-            "provider": {
-                "required": True,
-                "read_only": True,
-            },
-            "provider_account_id": {
-                "required": True,
-                "source": "providerAccountId",
-                "read_only": True,
-            },
-        }
+        fields = '__all__'
+    # class Meta:
+    #     model = Account
+    #     fields = ["provider", "providerAccountId"]
+    #     extra_kwargs = {
+    #         "provider": {
+    #             "required": True,
+    #             "read_only": True,
+    #         },
+    #         "providerAccountId": {
+    #             "required": True,
+    #             "source": "provider_account_id",
+    #             "read_only": True,
+    #         },
+    #     }
+    
+    def retrieve(self, validated_data: dict) -> Account:
+        provider = validated_data.get("provider")
+        provider_account_id = validated_data.get("provider_account_id")
+        return Account.objects.get(
+            provider=provider, provider_account_id=provider_account_id
+        )

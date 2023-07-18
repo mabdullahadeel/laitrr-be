@@ -1,3 +1,4 @@
+import re
 from django.utils.crypto import get_random_string
 from rest_framework import status
 from rest_framework.views import APIView
@@ -18,7 +19,6 @@ from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from dj_rest_auth.registration.views import SocialLoginView
 from . import serializers as auth_serializers
-
 
 class SocialAuthView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -91,14 +91,7 @@ def test_view(request):
 class SignupAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
-    @extend_schema(
-        parameters=[
-            auth_serializers.AdapterUserPayloadSerializer,
-        ],
-        request=None,
-        responses={200: auth_serializers.AdapterUserSerializer},
-    )
-    def get(self, request: HttpRequest):
+    def post(self, request: HttpRequest):
         serializer = auth_serializers.AdapterUserPayloadSerializer(data=request.data)
         if not serializer.is_valid():
             return Response.error(
@@ -111,11 +104,12 @@ class SignupAPIView(APIView):
             email_verified=serializer.validated_data.get("email_verified"),
         )
         user.set_password(get_random_string(32))
-        profile_image = serializer.validated_data.get("image")
         user.save()
+        profile_image = serializer.validated_data.get("image")
         if profile_image is not None:
-            user.profile = Profile(
-                profile_image=serializer.validated_data.get("image")
+            user.profile = Profile.objects.create(
+                profile_image=serializer.validated_data.get("image"),
+                user=user
             ).save()
         return DRFResponse(
             data=auth_serializers.AdapterUserSerializer(serializer.data).data,
@@ -126,14 +120,7 @@ class SignupAPIView(APIView):
 class RetrieveUserAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
-    @extend_schema(
-        parameters=[
-            auth_serializers.AdapterUserPayloadSerializer,
-        ],
-        request=None,
-        responses={200: auth_serializers.AdapterUserSerializer},
-    )
-    def get(self, request: HttpRequest):
+    def post(self, request: HttpRequest):
         serializer = auth_serializers.GetUserByIdSerializer(data=request.data)
         if not serializer.is_valid():
             return Response.error(
@@ -155,15 +142,8 @@ class RetrieveUserAPIView(APIView):
 class RetrieveUserByEmailAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
-    @extend_schema(
-        parameters=[
-            auth_serializers.AdapterUserPayloadSerializer,
-        ],
-        request=None,
-        responses={200: auth_serializers.AdapterUserSerializer},
-    )
-    def get(self, request: HttpRequest):
-        serializer = auth_serializers.AdapterUserPayloadSerializer(data=request.data)
+    def post(self, request: HttpRequest):
+        serializer = auth_serializers.GetUserByEmailPayloadSerializer(data=request.data)
         if not serializer.is_valid():
             return Response.error(
                 status=status.HTTP_400_BAD_REQUEST,
@@ -183,25 +163,21 @@ class RetrieveUserByEmailAPIView(APIView):
 
 class RetrieveUserByAccountAPIView(APIView):
     permission_classes = [permissions.AllowAny]
-
-    @extend_schema(
-        parameters=[
-            auth_serializers.GetUserByAccountSerilizer,
-        ],
-        request=None,
-        responses={200: auth_serializers.AdapterUserSerializer},
-    )
-    def get(self, request: HttpRequest):
+    serializer_class = auth_serializers.GetUserByAccountSerilizer
+    
+    def post(self, request: HttpRequest):
+        print(request.data)
         serializer = auth_serializers.GetUserByAccountSerilizer(data=request.data)
         if not serializer.is_valid():
             return Response.error(
                 status=status.HTTP_400_BAD_REQUEST,
                 error=serializer.errors,
             )
-
-        user = User.objects.filter(
-            accounts__id=serializer.validated_data.get("id")
-        ).first()
+        
+        try:
+          user = serializer.retrieve(serializer.validated_data)
+        except Exception as e:
+          return DRFResponse(data=None, status=status.HTTP_404_NOT_FOUND)
 
         return DRFResponse(
             data=auth_serializers.AdapterUserSerializer(user).data,
@@ -212,13 +188,6 @@ class RetrieveUserByAccountAPIView(APIView):
 class UpdateUserAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
-    @extend_schema(
-        parameters=[
-            auth_serializers.AdapterUserPayloadSerializer,
-        ],
-        request=None,
-        responses={200: auth_serializers.AdapterUserSerializer},
-    )
     def put(self, request: HttpRequest):
         serializer = auth_serializers.AdapterUserPayloadSerializer(
             data=request.data, partial=True
@@ -244,6 +213,29 @@ class UpdateUserAPIView(APIView):
             user.profile.profile_image = serializer.validated_data.get("image")
             user.profile.save()
         user.save()
+        return DRFResponse(
+            data=auth_serializers.AdapterUserSerializer(user).data,
+            status=status.HTTP_200_OK,
+        )
+
+
+class DeletUserAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def delete(self, request: HttpRequest):
+        serializer = auth_serializers.DeleteUserPayloadSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response.error(
+                status=status.HTTP_400_BAD_REQUEST,
+                error=serializer.errors,
+            )
+
+        user = User.objects.filter(id=serializer.validated_data.get("id")).first()
+
+        if user is None:
+            return Response.error(error={"message": "User not found"})
+
+        user.delete()
         return DRFResponse(
             data=auth_serializers.AdapterUserSerializer(user).data,
             status=status.HTTP_200_OK,
