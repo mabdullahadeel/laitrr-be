@@ -27,9 +27,12 @@ class SocialAuthQueryParamValidationSerializer(serializers.Serializer):
 
         return super().validate(attrs)
 
+
 class AdapterUserPayloadSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True, write_only=True)
-    email_verified = serializers.DateTimeField(required=True, write_only=True, source='emailVerified', allow_null=True)
+    email_verified = serializers.DateTimeField(
+        required=True, write_only=True, source="emailVerified", allow_null=True
+    )
     name = serializers.CharField(required=False, write_only=True, allow_null=True)
     image = serializers.CharField(required=False, write_only=True, allow_null=True)
 
@@ -40,8 +43,10 @@ class AdapterUserSerializer(serializers.ModelSerializer):
         fields = ["id", "email"]
         read_only_fields = ["id", "email"]
 
+
 class GetUserByIdSerializer(serializers.Serializer):
     id = serializers.CharField(required=True, write_only=True)
+
 
 class GetUserByAccountSerilizer(serializers.ModelSerializer):
     class Meta:

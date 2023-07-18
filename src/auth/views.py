@@ -31,7 +31,9 @@ class SocialAuthView(APIView):
         responses={200: auth_serializers.SocialAuthResponseSerializer},
     )
     def get(self, request: HttpRequest):
-        serializer = auth_serializers.SocialAuthQueryParamValidationSerializer(data=request.GET)
+        serializer = auth_serializers.SocialAuthQueryParamValidationSerializer(
+            data=request.GET
+        )
         if not serializer.is_valid():
             return Response.error(
                 status=status.HTTP_400_BAD_REQUEST,
@@ -112,8 +114,13 @@ class SignupAPIView(APIView):
         profile_image = serializer.validated_data.get("image")
         user.save()
         if profile_image is not None:
-            user.profile = Profile(profile_image=serializer.validated_data.get("image")).save()
-        return DRFResponse(data=auth_serializers.AdapterUserSerializer(serializer.data).data, status=status.HTTP_201_CREATED)
+            user.profile = Profile(
+                profile_image=serializer.validated_data.get("image")
+            ).save()
+        return DRFResponse(
+            data=auth_serializers.AdapterUserSerializer(serializer.data).data,
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class RetrieveUserAPIView(APIView):
@@ -135,11 +142,14 @@ class RetrieveUserAPIView(APIView):
             )
 
         user = User.objects.filter(id=serializer.validated_data.get("id")).first()
-        
+
         if user is None:
             return Response.error(error={"message": "User not found"})
-        
-        return DRFResponse(data=auth_serializers.AdapterUserSerializer(user).data, status=status.HTTP_200_OK)
+
+        return DRFResponse(
+            data=auth_serializers.AdapterUserSerializer(user).data,
+            status=status.HTTP_200_OK,
+        )
 
 
 class RetrieveUserByEmailAPIView(APIView):
@@ -161,11 +171,14 @@ class RetrieveUserByEmailAPIView(APIView):
             )
 
         user = User.objects.filter(email=serializer.validated_data.get("email")).first()
-        
+
         if user is None:
             return Response.error(error={"message": "User not found"})
-        
-        return DRFResponse(data=auth_serializers.AdapterUserSerializer(user).data, status=status.HTTP_200_OK)
+
+        return DRFResponse(
+            data=auth_serializers.AdapterUserSerializer(user).data,
+            status=status.HTTP_200_OK,
+        )
 
 
 class RetrieveUserByAccountAPIView(APIView):
@@ -186,9 +199,14 @@ class RetrieveUserByAccountAPIView(APIView):
                 error=serializer.errors,
             )
 
-        user = User.objects.filter(accounts__id=serializer.validated_data.get("id")).first()
-        
-        return DRFResponse(data=auth_serializers.AdapterUserSerializer(user).data, status=status.HTTP_200_OK)
+        user = User.objects.filter(
+            accounts__id=serializer.validated_data.get("id")
+        ).first()
+
+        return DRFResponse(
+            data=auth_serializers.AdapterUserSerializer(user).data,
+            status=status.HTTP_200_OK,
+        )
 
 
 class UpdateUserAPIView(APIView):
@@ -202,7 +220,9 @@ class UpdateUserAPIView(APIView):
         responses={200: auth_serializers.AdapterUserSerializer},
     )
     def put(self, request: HttpRequest):
-        serializer = auth_serializers.AdapterUserPayloadSerializer(data=request.data, partial=True)
+        serializer = auth_serializers.AdapterUserPayloadSerializer(
+            data=request.data, partial=True
+        )
         if not serializer.is_valid():
             return Response.error(
                 status=status.HTTP_400_BAD_REQUEST,
@@ -210,18 +230,21 @@ class UpdateUserAPIView(APIView):
             )
 
         user = User.objects.filter(email=serializer.validated_data.get("email")).first()
-        
+
         if user is None:
             return Response.error(error={"message": "User not found"})
-        
+
         if serializer.validated_data.get("name") is not None:
-          user.first_name = serializer.validated_data.get("name")
+            user.first_name = serializer.validated_data.get("name")
         if serializer.validated_data.get("email") is not None:
-          user.email = serializer.validated_data.get("email")
+            user.email = serializer.validated_data.get("email")
         if serializer.validated_data.get("email_verified") is not None:
-          user.email_verified = serializer.validated_data.get("email_verified")
+            user.email_verified = serializer.validated_data.get("email_verified")
         if serializer.validated_data.get("image") is not None:
-          user.profile.profile_image = serializer.validated_data.get("image")
-          user.profile.save()
+            user.profile.profile_image = serializer.validated_data.get("image")
+            user.profile.save()
         user.save()
-        return DRFResponse(data=auth_serializers.AdapterUserSerializer(user).data, status=status.HTTP_200_OK)
+        return DRFResponse(
+            data=auth_serializers.AdapterUserSerializer(user).data,
+            status=status.HTTP_200_OK,
+        )

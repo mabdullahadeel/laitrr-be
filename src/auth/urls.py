@@ -8,7 +8,6 @@ urlpatterns = [
     path("refresh/", views.refresh_token, name="refresh_token"),
     path("logout/", LogoutView.as_view(), name="rest_logout"),
     path("test/", views.test_view, name="test"),
-    
     # next auth http adapter custom methods
     # path("signup/", views.signup, name="signup"),
     # path("get-user/", views.get_user, name="get_user"),

@@ -14,11 +14,10 @@ from pathlib import Path
 from os import path
 import environ
 from datetime import timedelta
-from auth.utils import AllowedAuthProviders
+# from auth.utils import AllowedAuthProviders
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 env = environ.Env()
 # move one directory abotu Base dir and find .env file
 env_file_path = path.join(BASE_DIR, "../.env")
@@ -243,7 +242,8 @@ ALLOWED_REDIRECT_URLS = [
 ]
 
 
-ALLOWED_AUTH_PROVIDERS = AllowedAuthProviders.get_auth_providers()
+# ALLOWED_AUTH_PROVIDERS = AllowedAuthProviders.get_auth_providers()
+ALLOWED_AUTH_PROVIDERS = []
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env.str("GOOGLE_OAUTH2_KEY")
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env.str("GOOGLE_OAUTH2_SECRET")
