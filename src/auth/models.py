@@ -34,7 +34,7 @@ class Account(models.Model):
         unique_together = ("provider", "provider_account_id")
 
     def __str__(self):
-        return self.id
+        return f"{self.id} - {self.user.email}"
 
 
 class Session(models.Model):

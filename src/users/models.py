@@ -37,7 +37,7 @@ class User(AbstractUser):
         db_table = "users"
 
     def __str__(self):
-        return f"{self.id} - {self.email}"
+        return f"{self.email}"
 
     def save(self, *args, **kwargs):
         if not self.username:

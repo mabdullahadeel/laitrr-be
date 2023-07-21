@@ -20,8 +20,15 @@ class UserAdmin(admin.ModelAdmin):
         ProfileInline,
     ]
 
+class AccountAdmin(admin.ModelAdmin):
+    search_fields = ("id", "user__email")
+    list_display = [
+        "id",
+        "user",
+    ]
+
 
 admin.site.register(User, UserAdmin)
 admin.site.register(UserFollow)
 admin.site.register(Profile)
-admin.site.register(Account)
+admin.site.register(Account, AccountAdmin)
