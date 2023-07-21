@@ -1,9 +1,9 @@
-from pkg_resources import require
+from django.utils.crypto import get_random_string
 from rest_framework import serializers
 from django.conf import settings
 
 from auth.models import Account
-from users.models import User
+from users.models import User, Profile
 
 
 class SocialAuthResponseSerializer(serializers.Serializer):
@@ -29,20 +29,30 @@ class SocialAuthQueryParamValidationSerializer(serializers.Serializer):
         return super().validate(attrs)
 
 
-class AdapterUserPayloadSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True, write_only=True)
-    email_verified = serializers.DateTimeField(
-        required=True, write_only=True, source="emailVerified", allow_null=True
-    )
+class AdapterUserSerializer(serializers.ModelSerializer):
     name = serializers.CharField(required=False, write_only=True, allow_null=True)
-    image = serializers.CharField(required=False, write_only=True, allow_null=True)
-
+    image = serializers.URLField(required=False, allow_null=True)
+    emailVerified = serializers.DateTimeField(required=False, allow_null=True, source="email_verified")
+    
+    class Meta:
+        model = User
+        fields = ["id", "email", "emailVerified", "name", "image"]
+        
+    def get_names_pair(self, name: str) -> tuple[str, str]:
+        return (name.split(" ")[0] or "", name.split(" ")[1] or "")
+    
+    def create(self, validated_data: dict) -> User:
+        image = validated_data.pop("image")
+        validated_data["first_name"], validated_data["last_name"] = self.get_names_pair(validated_data.pop("name"))
+        instance = super().create(validated_data)
+        validated_data["password"] = get_random_string(32)
+        Profile.objects.update_or_create(user=instance, defaults={"oauth_profile_image": image})
+        return instance
 
 class AdapterUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "email"]
-        read_only_fields = ["id", "email"]
+        fields = ["id", "email", "email_verified"]
 
 
 class GetUserByIdSerializer(serializers.Serializer):
@@ -77,20 +87,6 @@ class GetUserByAccountSerilizer(serializers.Serializer):
     
     class Meta:
         fields = '__all__'
-    # class Meta:
-    #     model = Account
-    #     fields = ["provider", "providerAccountId"]
-    #     extra_kwargs = {
-    #         "provider": {
-    #             "required": True,
-    #             "read_only": True,
-    #         },
-    #         "providerAccountId": {
-    #             "required": True,
-    #             "source": "provider_account_id",
-    #             "read_only": True,
-    #         },
-    #     }
     
     def retrieve(self, validated_data: dict) -> Account:
         provider = validated_data.get("provider")
@@ -98,3 +94,25 @@ class GetUserByAccountSerilizer(serializers.Serializer):
         return Account.objects.get(
             provider=provider, provider_account_id=provider_account_id
         )
+
+class LinkAccountSerializer(serializers.ModelSerializer):
+    providerAccountId = serializers.CharField(
+        source="provider_account_id"
+    )
+    userId = serializers.CharField(source="user_id")
+    class Meta:
+        model = Account
+        fields = [
+            'id',
+            'userId',
+            'type',
+            'provider',
+            'providerAccountId',
+            'refresh_token',
+            'access_token',
+            'expires_at',
+            'token_type',
+            'scope',
+            'id_token',
+            'session_state'
+        ]

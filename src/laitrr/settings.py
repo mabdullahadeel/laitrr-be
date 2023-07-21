@@ -51,12 +51,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "django_extensions",
-    "dj_rest_auth",
-    "dj_rest_auth.registration",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
     # internal apps
     "users.apps.UsersConfig",
     "auth.apps.AuthConfig",
@@ -170,39 +164,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
-    ),
+    # "DEFAULT_AUTHENTICATION_CLASSES": (
+    #     "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
+    # ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
-
-REST_AUTH = {
-    "JWT_AUTH_REFRESH_COOKIE": "laitrr-refresh",
-    "JWT_AUTH_COOKIE": "laitrr-access",
-    "USE_JWT": True,
-    "SESSION_LOGIN": False,
-    "TOKEN_MODEL": None,
-    "USER_DETAILS_SERIALIZER": "users.serializers.UserPublicSerializer",
-    "JWT_AUTH_REFRESH_COOKIE_PATH": "/auth/refresh/",
-    "JWT_AUTH_SECURE": False if DEBUG else True,
-}
-
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "APP": {
-            "client_id": env.str("GOOGLE_OAUTH2_KEY"),
-            "secret": env.str("GOOGLE_OAUTH2_SECRET"),
-            "key": "",
-            "scope": [
-                "openid",
-                "email",
-                "profile",
-            ],
-        },
-    },
-}
-
-SITE_ID = 1
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Laitrr API",
@@ -212,15 +178,15 @@ SPECTACULAR_SETTINGS = {
 
 ONE_DAY = 60 * 60 * 24
 
-SIMPLE_JWT = {
-    "AUTH_HEADER_TYPES": ("Bearer",),
-    "ACCESS_TOKEN_LIFETIME": timedelta(
-        minutes=5 if not DEBUG else ONE_DAY * 7
-    ),  # TODO: Determine this value
-    "REFRESH_TOKEN_LIFETIME": timedelta(
-        days=1 if not DEBUG else 365
-    ),  # TODO: Determine this value
-}
+# SIMPLE_JWT = {
+#     "AUTH_HEADER_TYPES": ("Bearer",),
+#     "ACCESS_TOKEN_LIFETIME": timedelta(
+#         minutes=5 if not DEBUG else ONE_DAY * 7
+#     ),  # TODO: Determine this value
+#     "REFRESH_TOKEN_LIFETIME": timedelta(
+#         days=1 if not DEBUG else 365
+#     ),  # TODO: Determine this value
+# }
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",

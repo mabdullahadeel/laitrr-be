@@ -1,13 +1,7 @@
 from . import views
 from django.urls import path
-from dj_rest_auth.views import LogoutView
 
 urlpatterns = [
-    path("social/", views.SocialAuthView.as_view(), name="social_auth"),
-    path("google/", views.GoogleLogin.as_view(), name="google_login"),
-    path("refresh/", views.refresh_token, name="refresh_token"),
-    path("logout/", LogoutView.as_view(), name="rest_logout"),
-    path("test/", views.test_view, name="test"),
     # next auth http adapter custom methods
     path("signup/", views.SignupAPIView.as_view(), name="signup"),
     path("get-user/", views.RetrieveUserAPIView.as_view(), name="get_user"),
@@ -15,7 +9,7 @@ urlpatterns = [
     path("get-user-by-account/", views.RetrieveUserByAccountAPIView.as_view(), name="get_user_by_account"),
     path("update-user/", views.UpdateUserAPIView.as_view(), name="update_user"),
     path("delete-user/", views.DeletUserAPIView.as_view(), name="delete_user"),
-    # path("link-account/", views.link_account, name="link_account"),
+    path("link-account/", views.LinkAccountAPIView.as_view(), name="link_account"),
     # path("unlink-account/", views.unlink_account, name="unlink_account"),
     # path("create-session/", views.create_session, name="create_session"),
     # path("get-session-and-user/", views.get_session_and_user, name="get_session_and_user"),

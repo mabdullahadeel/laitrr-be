@@ -54,6 +54,7 @@ class Profile(models.Model):
     profile_image = models.ImageField(
         upload_to=profile_image_path, blank=True, null=True
     )
+    oauth_profile_image = models.URLField(blank=True, null=True)
     user = models.OneToOneField(
         to=User,
         on_delete=models.CASCADE,
