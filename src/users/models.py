@@ -1,6 +1,12 @@
+from __future__ import annotations
 from core.db import generate_db_id
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.crypto import get_random_string
+
+from typing import TYPE_CHECKING, Optional
+if TYPE_CHECKING:
+    from auth.models import Account, Session
 
 
 def profile_image_path(instance: "Profile", filename: str):
@@ -12,11 +18,14 @@ class User(AbstractUser):
         primary_key=True, default=generate_db_id, editable=False, max_length=36
     )
     email = models.EmailField(unique=True)
+    email_verified = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     profile: "Profile"
     following: "UserFollow"
     followers: "UserFollow"
+    accounts: list[Account]
+    sessions: Optional[list[Session]]
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
@@ -28,11 +37,13 @@ class User(AbstractUser):
         db_table = "users"
 
     def __str__(self):
-        return f"{self.id} - {self.email}"
+        return f"{self.email}"
 
     def save(self, *args, **kwargs):
         if not self.username:
             self.username = self.email.split("@")[0].replace(".", "_")
+        if not self.password:
+            self.set_password(get_random_string(32))
         super().save(*args, **kwargs)
 
 
@@ -43,6 +54,7 @@ class Profile(models.Model):
     profile_image = models.ImageField(
         upload_to=profile_image_path, blank=True, null=True
     )
+    oauth_profile_image = models.URLField(blank=True, null=True)
     user = models.OneToOneField(
         to=User,
         on_delete=models.CASCADE,

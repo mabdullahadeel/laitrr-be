@@ -17,8 +17,7 @@ def create_user_follow(sender, instance: UserFollow, created, **kwargs):
 def create_user_account(sender, instance: User, created, **kwargs):
     """Create an account for the user if it doesn't exist"""
     if created:
-        user_profile = Profile(user=instance)
-        user_profile.save()
+        Profile.objects.get_or_create(user=instance)
 
 
 @receiver(pre_save, sender=Profile)
