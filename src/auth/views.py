@@ -1,21 +1,21 @@
 from rest_framework import status
 from rest_framework.response import Response as DRFResponse
 from rest_framework import generics
-from rest_framework import permissions
 from auth.models import Account, Session, VerficationToken
 from core.mixins import WrappedResponseMixin
 from drf_spectacular.utils import extend_schema
+from .permissions import AllowRemoteAuthServer
 
 from users.models import User
 from . import serializers as auth_serializers
 
 class RemoteAdapterSignupView(WrappedResponseMixin, generics.CreateAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowRemoteAuthServer]
     serializer_class = auth_serializers.AdapterUserSerializer
     queryset = User.objects.all()
 
 class RetrieveUserByIdView(WrappedResponseMixin, generics.RetrieveAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowRemoteAuthServer]
     serializer_class = auth_serializers.AdapterPublicUserSerializer
     queryset = User.objects.all()
     
@@ -23,7 +23,7 @@ class RetrieveUserByIdView(WrappedResponseMixin, generics.RetrieveAPIView):
         return self.queryset.get(id=self.kwargs.get("id"))
 
 class RetrieveUserByEmailAPIView(WrappedResponseMixin, generics.RetrieveAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowRemoteAuthServer]
     serializer_class = auth_serializers.AdapterPublicUserSerializer
     queryset = User.objects.all()
     
@@ -35,7 +35,7 @@ class RetrieveUserByEmailAPIView(WrappedResponseMixin, generics.RetrieveAPIView)
 
 
 class RetrieveUserByAccountAPIView(WrappedResponseMixin, generics.RetrieveAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowRemoteAuthServer]
     serializer_class = auth_serializers.AdapterPublicUserSerializer
     queryset = Account.objects.all()
     
@@ -49,7 +49,7 @@ class RetrieveUserByAccountAPIView(WrappedResponseMixin, generics.RetrieveAPIVie
 
 
 class UpdateUserAPIView(WrappedResponseMixin, generics.UpdateAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowRemoteAuthServer]
     serializer_class = auth_serializers.AdapterUserSerializer
     queryset = User.objects.all()
     
@@ -61,20 +61,20 @@ class UpdateUserAPIView(WrappedResponseMixin, generics.UpdateAPIView):
 
 
 class DeletUserAPIView(WrappedResponseMixin, generics.DestroyAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowRemoteAuthServer]
     serializer_class = auth_serializers.AdapterUserSerializer
     queryset = User.objects.all()
     lookup_url_kwarg = "id"
 
 
 class LinkAccountAPIView(WrappedResponseMixin, generics.CreateAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowRemoteAuthServer]
     serializer_class = auth_serializers.LinkAccountSerializer
     queryset = Account.objects.all()
 
 
 class UnlinkAccountAPIView(WrappedResponseMixin, generics.DestroyAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowRemoteAuthServer]
     serializer_class = auth_serializers.LinkAccountSerializer
     queryset = Account.objects.all()
     
@@ -86,13 +86,13 @@ class UnlinkAccountAPIView(WrappedResponseMixin, generics.DestroyAPIView):
         )
 
 class CreateSessionAPIView(WrappedResponseMixin, generics.CreateAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowRemoteAuthServer]
     serializer_class = auth_serializers.RemoteAdapterSessionSerializer
     queryset = User.objects.all()
 
 
 class UpdateSessionAPIView(WrappedResponseMixin, generics.UpdateAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowRemoteAuthServer]
     serializer_class = auth_serializers.RemoteAdapterSessionSerializer
     queryset = Session.objects.all()
     
@@ -104,7 +104,7 @@ class UpdateSessionAPIView(WrappedResponseMixin, generics.UpdateAPIView):
 
 
 class GetSessionAndUserAPIView(WrappedResponseMixin, generics.RetrieveAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowRemoteAuthServer]
     serializer_class = auth_serializers.RemoteAdapterSessionAndUserSerializer
     queryset = Session.objects.all()
     
@@ -120,7 +120,7 @@ class GetSessionAndUserAPIView(WrappedResponseMixin, generics.RetrieveAPIView):
 
 
 class DeleteSessionAPIView(WrappedResponseMixin, generics.DestroyAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowRemoteAuthServer]
     serializer_class = auth_serializers.RemoteAdapterSessionSerializer
     queryset = Session.objects.all()
     
@@ -132,13 +132,13 @@ class DeleteSessionAPIView(WrappedResponseMixin, generics.DestroyAPIView):
 
 
 class CreateVerificationTokenAPIView(WrappedResponseMixin, generics.CreateAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowRemoteAuthServer]
     serializer_class = auth_serializers.RemoteAdapterVerificationTokensSerializers
     queryset = VerficationToken.objects.all()
 
 
 class RetrieveVerificationToken(WrappedResponseMixin, generics.RetrieveAPIView, generics.CreateAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowRemoteAuthServer]
     serializer_class = auth_serializers.RemoteAdapterVerificationTokensSerializers
     queryset = VerficationToken.objects.all()
     
