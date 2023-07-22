@@ -46,6 +46,7 @@ class Session(models.Model):
         related_name="sessions",
         on_delete=models.CASCADE,
     )
+    session_token = models.CharField(max_length=255, unique=True)
     expires = models.DateTimeField()
 
     class Meta:
