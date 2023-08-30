@@ -14,7 +14,8 @@ class PublicProfileSerializer(serializers.ModelSerializer):
 
 class UserPublicSerializer(serializers.ModelSerializer):
     profile = PublicProfileSerializer()
-
+    full_name = serializers.CharField(source="get_full_name", read_only=True)
+    name_initials = serializers.SerializerMethodField(method_name="get_name_initials")
     class Meta:
         model = User
         fields = [
@@ -23,8 +24,21 @@ class UserPublicSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "profile",
+            "full_name",
+            "name_initials"
         ]
         read_only_fields = ["profile"]
+    
+    def get_name_initials(self, obj):
+        initials = ""
+        if len(obj.first_name) > 0:
+            initials += obj.first_name[0]
+        if len(obj.last_name) > 0:
+            initials += obj.last_name[0]
+        if len(initials) == 0:
+            initials = obj.username[0:2].upper()
+        
+        return initials
 
 
 class FollowUserSerializer(serializers.Serializer):
