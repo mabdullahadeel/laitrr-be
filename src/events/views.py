@@ -36,6 +36,7 @@ class EventCreate(WrappedResponseMixin, generics.CreateAPIView):
 class EventUpdate(WrappedResponseMixin, generics.UpdateAPIView):
     serializer_class = event_serializers.EventCreateSerializer
     queryset = Event.objects.all()
+    lookup_field = "id"
 
 
 class EventDelete(WrappedResponseMixin, generics.DestroyAPIView):
