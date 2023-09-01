@@ -36,6 +36,7 @@ class EventCreate(WrappedResponseMixin, generics.CreateAPIView):
 class EventUpdate(WrappedResponseMixin, generics.UpdateAPIView):
     serializer_class = event_serializers.EventCreateSerializer
     queryset = Event.objects.all()
+    lookup_field = "id"
 
 
 class EventDelete(WrappedResponseMixin, generics.DestroyAPIView):
@@ -55,6 +56,10 @@ class EventAnnouncementList(WrappedResponseMixin, generics.ListAPIView):
     serializer_class = event_serializers.EventAnnouncementSerializer
     queryset = EventAnnouncement.objects.all()
     pagination_class = WrappedLimitOffsetPagination
+    
+    def get_queryset(self):
+        event_id = self.kwargs["event_id"]
+        return super().get_queryset().filter(event__id=event_id)
 
 
 class EventFollow(WrappedResponseMixin, generics.CreateAPIView):
