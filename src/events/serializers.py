@@ -75,13 +75,7 @@ class EventUpdateSerializer(serializers.ModelSerializer):
 class EventAnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventAnnouncement
-        fields = [
-            "id",
-            "title",
-            "description",
-            "created_at",
-            "updated_at",
-        ]
+        fields = "__all__"
         read_only_fields = [
             "id",
             "event",
@@ -95,7 +89,7 @@ class EventAnnouncementCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EventAnnouncement
-        fields = ["title", "description", "event"]
+        fields = "__all__"
 
     def create(self, validated_data):
         event = Event.objects.get(id=self.context["view"].kwargs["event_id"])
