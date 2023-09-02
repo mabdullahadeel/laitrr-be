@@ -66,8 +66,8 @@ class EventUpdateSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance: Event, validated_data: dict):
-        if serializers.CurrentUserDefault() != instance.owner:
-            raise PermissionDenied({"message": "User is not the owner of the event"})
+        if self.context["request"].user != instance.owner:
+            raise PermissionDenied({"message": "You don't have the permission to update this event"})
 
         return super().update(instance, validated_data)
 

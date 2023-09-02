@@ -4,26 +4,41 @@ from django.urls import path
 app_name = "events"
 
 urlpatterns = [
-    path("", views.EventsList.as_view(), name="events-list"),
+    path("feed/", views.EventsList.as_view(), name="events-list"),
     path("create/", views.EventCreate.as_view(), name="event-create"),
+    path("follow/", views.EventFollow.as_view(), name="event-follow"),
+    path("event-types/", views.EventTypeList.as_view(), name="event-types-list"),
+    path("update/<uuid:id>/", views.EventUpdate.as_view(), name="event-update"),
+    path("delete/<uuid:event_id>/", views.EventDelete.as_view(), name="event-delete"),
     path(
-        "<uuid:event_id>/announcements/",
+        "unfollow/<uuid:event_id>/",
+        views.EventUnfollow.as_view(),
+        name="event-unfollow",
+    ),
+    path("details/<uuid:event_id>/", views.EventDetail.as_view(), name="event-detail"),
+    path(
+        "event-announcements/<uuid:event_id>/",
         views.EventAnnouncementList.as_view(),
         name="event-announcements-list",
     ),
     path(
-        "<uuid:event_id>/announcements/create/",
+        "announcements/create/<uuid:event_id>/",
         views.EventAnnouncementCreate.as_view(),
         name="event-announcement-create",
     ),
-    path("<uuid:id>/update/", views.EventUpdate.as_view(), name="event-update"),
-    path("<uuid:event_id>/delete/", views.EventDelete.as_view(), name="event-delete"),
-    path("follow/", views.EventFollow.as_view(), name="event-follow"),
     path(
-        "<uuid:event_id>/unfollow/",
-        views.EventUnfollow.as_view(),
-        name="event-unfollow",
+        "announcements/update/<uuid:announcement_id>/",
+        views.EventAnnouncementUpdate.as_view(),
+        name="event-announcement-update",
     ),
-    path("<uuid:event_id>/", views.EventDetail.as_view(), name="event-detail"),
-    path("event-types/", views.EventTypeList.as_view(), name="event-types-list"),
+    path(
+        "announcements/delete/<uuid:announcement_id>/",
+        views.EventAnnouncementDelete.as_view(),
+        name="event-announcement-delete",
+    ),
+    path(
+        "announcements/<uuid:announcement_id>/",
+        views.EventAnnouncementDetail.as_view(),
+        name="event-announcement-detail",
+    ),
 ]
