@@ -34,7 +34,7 @@ class EventCreate(WrappedResponseMixin, generics.CreateAPIView):
 
 
 class EventUpdate(WrappedResponseMixin, generics.UpdateAPIView):
-    serializer_class = event_serializers.EventCreateSerializer
+    serializer_class = event_serializers.EventUpdateSerializer
     queryset = Event.objects.all()
     lookup_field = "id"
 
@@ -50,6 +50,7 @@ class EventDelete(WrappedResponseMixin, generics.DestroyAPIView):
 class EventAnnouncementCreate(WrappedResponseMixin, generics.CreateAPIView):
     serializer_class = event_serializers.EventAnnouncementCreateSerializer
     queryset = EventAnnouncement.objects.all()
+    
 
 
 class EventAnnouncementList(WrappedResponseMixin, generics.ListAPIView):
@@ -61,6 +62,29 @@ class EventAnnouncementList(WrappedResponseMixin, generics.ListAPIView):
         event_id = self.kwargs["event_id"]
         return super().get_queryset().filter(event__id=event_id)
 
+class EventAnnouncementDetail(WrappedResponseMixin, generics.RetrieveAPIView):
+    serializer_class = event_serializers.EventAnnouncementSerializer
+    queryset = EventAnnouncement.objects.all()
+    lookup_field = "id"
+    lookup_url_kwarg = "announcement_id"
+
+class EventAnnouncementUpdate(WrappedResponseMixin, generics.UpdateAPIView):
+    serializer_class = event_serializers.EventAnnouncementCreateSerializer
+    queryset = EventAnnouncement.objects.all()
+    lookup_field = "id"
+    lookup_url_kwarg = "announcement_id"
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(event__owner=self.request.user)
+
+class EventAnnouncementDelete(WrappedResponseMixin, generics.DestroyAPIView):
+    serializer_class = event_serializers.EventAnnouncementSerializer
+    queryset = EventAnnouncement.objects.all()
+    lookup_field = "id"
+    lookup_url_kwarg = "announcement_id"
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(event__owner=self.request.user)
 
 class EventFollow(WrappedResponseMixin, generics.CreateAPIView):
     serializer_class = event_serializers.FollowEventSerializer
