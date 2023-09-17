@@ -35,6 +35,9 @@ class User(AbstractUser):
         verbose_name = "user"
         verbose_name_plural = "users"
         db_table = "users"
+    
+    def get_image(self) -> str:
+        return self.profile.profile_image or self.profile.oauth_profile_image or None
 
     def __str__(self):
         return f"{self.email}"

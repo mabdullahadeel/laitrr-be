@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from os import path
 import environ
-from datetime import timedelta
-# from auth.utils import AllowedAuthProviders
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,9 +49,10 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "django_extensions",
+    "django_next_auth_adapter",
     # internal apps
     "users.apps.UsersConfig",
-    "auth.apps.AuthConfig",
+    # "auth.apps.AuthConfig",
     "events.apps.EventsConfig",
 ]
 
@@ -165,6 +164,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": (
+        # "rest_framework.authentication.SessionAuthentication",
         "core.auth.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
@@ -179,16 +179,6 @@ SPECTACULAR_SETTINGS = {
 SITE_ID = 1
 
 ONE_DAY = 60 * 60 * 24
-
-# SIMPLE_JWT = {
-#     "AUTH_HEADER_TYPES": ("Bearer",),
-#     "ACCESS_TOKEN_LIFETIME": timedelta(
-#         minutes=5 if not DEBUG else ONE_DAY * 7
-#     ),  # TODO: Determine this value
-#     "REFRESH_TOKEN_LIFETIME": timedelta(
-#         days=1 if not DEBUG else 365
-#     ),  # TODO: Determine this value
-# }
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -215,4 +205,7 @@ ALLOWED_AUTH_PROVIDERS = []
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env.str("GOOGLE_OAUTH2_KEY")
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env.str("GOOGLE_OAUTH2_SECRET")
-REMOTE_AUTH_RPC_TOKEN=env.str("REMOTE_AUTH_RPC_TOKEN")
+
+DJANGO_NEXT_AUTH_ADAPTER = {
+    "REMOTE_AUTH_TOKEN": env.str("REMOTE_AUTH_RPC_TOKEN")
+}
