@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from auth.models import Account
+# from auth.models import Account
+from django_next_auth_adapter.models import Account
 from .models import User, UserFollow, Profile
 
 

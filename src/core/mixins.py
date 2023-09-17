@@ -1,22 +1,9 @@
 from django.http import HttpRequest
-from rest_framework.mixins import (
-    CreateModelMixin,
-    UpdateModelMixin,
-    RetrieveModelMixin,
-    DestroyModelMixin,
-    ListModelMixin,
-)
 from core.response import Response
 from rest_framework.response import Response as DRFResponse
 
 
-class WrappedResponseMixin(
-    CreateModelMixin,
-    UpdateModelMixin,
-    RetrieveModelMixin,
-    DestroyModelMixin,
-    ListModelMixin,
-):
+class WrappedResponseMixin():
     def is_success_status_code(self, status_code):
         return status_code >= 200 and status_code < 300
 
