@@ -49,10 +49,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "django_extensions",
-    "django_next_auth_adapter",
     # internal apps
     "users.apps.UsersConfig",
-    # "auth.apps.AuthConfig",
     "events.apps.EventsConfig",
 ]
 
@@ -195,17 +193,4 @@ AUTHENTICATION_BACKENDS = [
 
 AUTH_USER_MODEL = "users.User"
 
-ALLOWED_REDIRECT_URLS = [
-    "http://localhost:3000/auth/google/callback/",
-]
-
-
-# ALLOWED_AUTH_PROVIDERS = AllowedAuthProviders.get_auth_providers()
-ALLOWED_AUTH_PROVIDERS = []
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env.str("GOOGLE_OAUTH2_KEY")
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env.str("GOOGLE_OAUTH2_SECRET")
-
-DJANGO_NEXT_AUTH_ADAPTER = {
-    "REMOTE_AUTH_TOKEN": env.str("REMOTE_AUTH_RPC_TOKEN")
-}
+REMOTE_AUTH_TOKEN = env.str("REMOTE_AUTH_RPC_TOKEN")
