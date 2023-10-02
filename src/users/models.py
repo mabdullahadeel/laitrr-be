@@ -1,13 +1,7 @@
-from __future__ import annotations
 from core.db import generate_db_id
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.crypto import get_random_string
-
-from typing import TYPE_CHECKING, Optional
-if TYPE_CHECKING:
-    from auth.models import Account, Session
-
 
 def profile_image_path(instance: "Profile", filename: str):
     return f"profile_images/{instance.user.id}.{filename.split('.')[-1]}"
@@ -24,8 +18,6 @@ class User(AbstractUser):
     profile: "Profile"
     following: "UserFollow"
     followers: "UserFollow"
-    accounts: list[Account]
-    sessions: Optional[list[Session]]
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
