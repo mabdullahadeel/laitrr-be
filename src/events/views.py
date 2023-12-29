@@ -1,8 +1,11 @@
+from django.utils import timezone
 from core.mixins import WrappedResponseMixin
 from core.pagination import WrappedLimitOffsetPagination
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from . import serializers as event_serializers
 from .models import Event, EventAnnouncement, EventFollower, EventType
@@ -102,3 +105,35 @@ class EventUnfollow(WrappedResponseMixin, generics.DestroyAPIView):
 class EventTypeList(WrappedResponseMixin, generics.ListAPIView):
     serializer_class = event_serializers.ListEventTypesSerializer
     queryset = EventType.objects.all()
+
+
+@extend_schema(
+    description="List of events created by a user. "
+    "Use the `upcoming` and `past` query parameters to filter the events.",
+    parameters=[
+        OpenApiParameter(
+            name="filter",
+            description="Filter events based on the time",
+            required=False,
+            type=str,
+            enum=["upcoming", "past"],
+        ),
+    ]
+)
+class UserEventsList(WrappedResponseMixin, generics.ListAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = event_serializers.EventSerializer
+    queryset = Event.objects.all()
+    pagination_class = WrappedLimitOffsetPagination
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        username = self.kwargs["username"]
+        queryset = queryset.filter(owner__username=username)
+        time_filter = self.request.GET.get("filter")
+        if time_filter == "upcoming":
+            queryset = queryset.filter(start_date__gte=timezone.now())
+        elif time_filter == "past":
+            queryset = queryset.filter(start_date__lt=timezone.now())
+        
+        return queryset

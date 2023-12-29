@@ -41,4 +41,5 @@ urlpatterns = [
         views.EventAnnouncementDetail.as_view(),
         name="event-announcement-detail",
     ),
+    path("user/<str:username>/", views.UserEventsList.as_view(), name="user-events-list"),
 ]

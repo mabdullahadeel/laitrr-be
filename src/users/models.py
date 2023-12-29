@@ -22,6 +22,33 @@ class User(AbstractUser):
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
+    
+    @property
+    def name_initials(self):
+        initials = ""
+        if len(self.first_name) > 0:
+            initials += self.first_name[0]
+        if len(self.last_name) > 0:
+            initials += self.last_name[0]
+        if len(initials) == 0:
+            initials = self.username[0:2].upper()
+        
+        return initials
+    
+    @property
+    def full_name(self):
+        return self.get_full_name()
+    
+    @staticmethod
+    def get_public_safe_fields():
+        return [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "full_name",
+            "name_initials",
+        ]
 
     class Meta:
         verbose_name = "user"
@@ -29,18 +56,32 @@ class User(AbstractUser):
         db_table = "users"
     
     def get_image(self) -> str:
-        return self.profile.profile_image or self.profile.oauth_profile_image or None
+        return self.profile.image
+    
 
     def __str__(self):
         return f"{self.email}"
-
+    
     def save(self, *args, **kwargs):
+        def generate_username(auto_randomize = False) -> str:
+            username = ""
+            if self.first_name and self.last_name:
+                username = f"{self.first_name}_{self.last_name}".lower()
+                if auto_randomize:
+                    username += f"_{get_random_string(8)}"
+            else:
+                username = f"user_{get_random_string(8)}"
+            
+            if User.objects.filter(username=username).exists():
+                return generate_username(auto_randomize=True)
+            
+            return username
         if not self.username:
-            self.username = self.email.split("@")[0].replace(".", "_")
+            self.username = generate_username()
         if not self.password:
             self.set_password(get_random_string(32))
         super().save(*args, **kwargs)
-
+    
 
 class Profile(models.Model):
     id = models.CharField(
@@ -55,6 +96,21 @@ class Profile(models.Model):
         on_delete=models.CASCADE,
         related_name="profile",
     )
+    
+    @property
+    def image(self) -> str:
+        if self.profile_image:
+            return self.profile_image.url
+        
+        return self.oauth_profile_image or None
+    
+    @staticmethod
+    def get_public_safe_fields():
+        return [
+            "id",
+            "profile_image",
+            "oauth_profile_image"
+        ]
 
     class Meta:
         verbose_name = "profile"
