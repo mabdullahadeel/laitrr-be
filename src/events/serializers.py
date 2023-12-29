@@ -63,6 +63,9 @@ class EventUpdateSerializer(serializers.ModelSerializer):
         fields = [
             "title",
             "description",
+            "start_date",
+            "resource_url",
+            "type"
         ]
 
     def update(self, instance: Event, validated_data: dict):

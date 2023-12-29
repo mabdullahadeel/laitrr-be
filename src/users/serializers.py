@@ -9,37 +9,16 @@ User: Type[CustomUser] = get_user_model()
 class PublicProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        exclude = ["user"]
+        fields = ["image"]
 
 
 class UserPublicSerializer(serializers.ModelSerializer):
     profile = PublicProfileSerializer()
-    full_name = serializers.CharField(source="get_full_name", read_only=True)
-    name_initials = serializers.SerializerMethodField(method_name="get_name_initials")
+
     class Meta:
         model = User
-        fields = [
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "profile",
-            "full_name",
-            "name_initials"
-        ]
+        fields = User.get_public_safe_fields() + ["profile"]
         read_only_fields = ["profile"]
-    
-    def get_name_initials(self, obj):
-        initials = ""
-        if len(obj.first_name) > 0:
-            initials += obj.first_name[0]
-        if len(obj.last_name) > 0:
-            initials += obj.last_name[0]
-        if len(initials) == 0:
-            initials = obj.username[0:2].upper()
-        
-        return initials
-
 
 class FollowUserSerializer(serializers.Serializer):
     follower_id = serializers.CharField(max_length=36)
@@ -79,3 +58,19 @@ class FollowUserSerializer(serializers.Serializer):
             return validated_data
         except Exception as e:
             raise serializers.ValidationError(detail={"message": str(e)})
+
+
+class UserPublicProfileSerializer(serializers.ModelSerializer):
+    profile = PublicProfileSerializer()
+    is_following = serializers.SerializerMethodField(method_name="get_is_following")
+
+    class Meta:
+        model = User
+        fields = User.get_public_safe_fields() + ["profile", "is_following"]
+        read_only_fields = ["profile", "is_following"]
+        
+    def get_is_following(self, obj):
+        user: CustomUser = self.context["request"].user
+        if not user.is_authenticated:
+            return False
+        return UserFollow.objects.filter(user_id=obj.id, follower_id=user.id).exists()
